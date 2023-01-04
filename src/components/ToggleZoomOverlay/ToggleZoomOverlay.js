@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import core from 'core';
+import { Popover, Slider } from 'antd';
 import classNames from 'classnames';
 
 import ToggleElementButton from 'components/ToggleElementButton';
@@ -13,6 +14,7 @@ import zoomFactors from 'constants/zoomFactors';
 
 import './ToggleZoomOverlay.scss';
 import { useTranslation } from 'react-i18next';
+import { Zoom } from 'src/SvgComponents';
 
 const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
   const [t] = useTranslation();
@@ -28,14 +30,13 @@ const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
     false,
   );
 
-  const [isActive, isMultiViewerMode] = useSelector((state) => [
-    selectors.isElementOpen(state, elementName),
-    selectors.isMultiViewerMode(state),
-  ],
-  shallowEqual,
+  const [showZoom, setShowZoom] = useState(false);
+  const [isActive, isMultiViewerMode] = useSelector(
+    state => [selectors.isElementOpen(state, elementName), selectors.isMultiViewerMode(state)],
+    shallowEqual,
   );
   const dispatch = useDispatch();
-  const [value, setValue] = useState('100');
+  const [value, setValue] = useState(0);
 
   useEffect(() => {
     const onDocumentLoaded = () => setValue(Math.ceil(core.getZoom(documentViewerKey) * 100).toString());
@@ -53,7 +54,7 @@ const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
     };
   }, []);
 
-  const onKeyPress = (e) => {
+  const onKeyPress = e => {
     if (e.nativeEvent.key === 'Enter' || e.nativeEvent.keyCode === 13) {
       const zoom = Math.ceil(core.getZoom(documentViewerKey) * 100).toString();
       if (e.target.value === zoom) {
@@ -62,7 +63,7 @@ const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
       if (e.target.value === '') {
         setValue(zoom);
       } else {
-        let zoomValue = (e.target.value) / 100;
+        let zoomValue = e.target.value / 100;
         zoomValue = Math.max(zoomValue, zoomFactors.getMinZoomLevel());
         zoomValue = Math.min(zoomValue, zoomFactors.getMaxZoomLevel());
         zoomTo(zoomValue, isMultiViewerMode, documentViewerKey);
@@ -70,14 +71,14 @@ const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
     }
   };
 
-  const onChange = (e) => {
+  const onChange = e => {
     const re = /^(\d){0,4}$/;
     if (re.test(e.target.value) || e.target.value === '') {
       setValue(e.target.value);
     }
   };
 
-  const onBlur = (e) => {
+  const onBlur = e => {
     const zoom = Math.ceil(core.getZoom(documentViewerKey) * 100).toString();
     if (e.target.value === zoom) {
       return;
@@ -90,63 +91,39 @@ const ToggleZoomOverlay = ({ documentViewerKey = undefined }) => {
     }
   };
 
+  const zoom = val => {
+    if (val > value) {
+      zoomIn(false);
+    } else {
+      zoomOut(false);
+    }
+
+    setValue(val);
+  };
+
   const inputWidth = value ? (value.length + 1) * 8 : 0;
+
+  const handleOpenChange = val => {
+    setShowZoom(val);
+  };
 
   return (
     <div className="zoom-overlay">
-      {!isMobile &&
-        <div className="ToggleZoomOverlay">
-          <div
-            className={classNames({
-              OverlayContainer: true,
-              active: isActive,
-            })}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                dispatch(actions.toggleElement('zoomOverlay'));
-              }
-            }}
-            tabIndex={0}
-          >
-            <div
-              className="OverlayText"
-              onClick={() => dispatch(actions.toggleElement(elementName))}
-            >
-              <input
-                type="text"
-                className="textarea"
-                value={value}
-                onChange={onChange}
-                onKeyPress={onKeyPress}
-                onBlur={onBlur}
-                tabIndex={-1}
-                style={{ width: inputWidth }}
-                aria-label={t('action.zoomSet')}
-              />
-              <span>%</span>
-            </div>
-            <ToggleElementButton
-              className="OverlayButton"
-              img={`icon-chevron-${isActive ? 'up' : 'down'}`}
-              element={elementName}
-              dataElement={buttonName}
-              ariaLabel={t('action.zoomControls')}
-              tabIndex={-1}
-            />
+      <Popover
+        open={showZoom}
+        placement="bottom"
+        trigger={'click'}
+        content={() => (
+          <div style={{ width: '96px' }}>
+            <Slider min={-3} max={3} defaultValue={0} onChange={val => zoom(val)} />
           </div>
-        </div>}
-      <ActionButton
-        img="icon-header-zoom-out-line"
-        onClick={() => zoomOut(isMultiViewerMode, documentViewerKey)}
-        title="action.zoomOut"
-        dataElement="zoomOutButton"
-      />
-      <ActionButton
-        img="icon-header-zoom-in-line"
-        onClick={() => zoomIn(isMultiViewerMode, documentViewerKey)}
-        title="action.zoomIn"
-        dataElement="zoomInButton"
-      />
+        )}
+        onOpenChange={handleOpenChange}
+      >
+        <div onClick={() => setShowZoom(true)}>
+          <Zoom />
+        </div>
+      </Popover>
     </div>
   );
 };

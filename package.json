@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@pdftron/webviewer-react-toolkit": "^0.7.1",
+    "antd": "^5.1.2",
     "autolinker": "^3.11.1",
     "classnames": "^2.2.6",
     "css-vars-ponyfill": "^2.3.2",

@@ -23,18 +23,9 @@ const propTypes = {
   className: PropTypes.string,
 };
 
-const ToolButton = ({
-  toolName,
-  className,
-  ...restProps
-}) => {
-  const [
-    isActive,
-    iconColorKey,
-    toolButtonObject,
-    customOverrides,
-  ] = useSelector(
-    (state) => [
+const ToolButton = ({ toolName, className, ...restProps }) => {
+  const [isActive, iconColorKey, toolButtonObject, customOverrides] = useSelector(
+    state => [
       selectors.getActiveToolName(state) === toolName,
       selectors.getIconColor(state, mapToolNameToKey(toolName)),
       selectors.getToolButtonObject(state, toolName),
@@ -59,7 +50,11 @@ const ToolButton = ({
 
   const handleClick = () => {
     if (isActive) {
-      if (toolName !== 'AnnotationCreateStamp' && toolName !== 'AnnotationCreateRedaction' && toolName !== 'AnnotationEraserTool') {
+      if (
+        toolName !== 'AnnotationCreateStamp' &&
+        toolName !== 'AnnotationCreateRedaction' &&
+        toolName !== 'AnnotationEraserTool'
+      ) {
         if (toolStylesExist(toolName)) {
           dispatch(actions.toggleElement('toolStylePopup'));
           if (toolName === 'AnnotationCreateRubberStamp') {
@@ -97,19 +92,9 @@ const ToolButton = ({
   }
 
   return (
-    <Button
-      className={classNames({
-        'tool-button': true,
-        hasStyles: toolStylesExist(toolName),
-        [className]: className,
-      })}
+    <span
       onClick={handleClick}
-      isActive={isActive}
-      color={color}
-      fillColor={fillColor}
-      strokeColor={strokeColor}
-      {...restProps}
-      {...restObjectData}
+      style={{ backgroundColor: color, borderRadius: '50%', width: '24px', height: '24px' }}
     />
   );
 };

@@ -3,29 +3,29 @@
 
 .AnnotationPopup {
   @extend %popup;
-  border-radius: 4px;
-  box-shadow: 0 0 3px 0 var(--document-box-shadow);
-  background: var(--component-background);
+  border-radius: 8px;
+  box-shadow: 0px 5px 10px rgba(0, 46, 57, 0.15);
+  background: #ffffff;
 
   .container {
     display: contents;
   }
 }
 
-.shortCuts3D{
-  position:relative;
-  .closeButton{
-    position:absolute;
+.shortCuts3D {
+  position: relative;
+  .closeButton {
+    position: absolute;
     right: 4px;
     padding: 2px;
     cursor: pointer;
     width: 20px;
     text-align: center;
   }
-  .row{
+  .row {
     padding: 4px 0;
     margin: 8px 26px 8px 16px;
-    span{
+    span {
       background: $light-gray;
       padding: 4px 8px;
       border-radius: 4px;

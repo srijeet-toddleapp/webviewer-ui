@@ -2,12 +2,12 @@
 @import '../../constants/popup';
 
 .ToolStylePopup {
-  background: var(--preset-background);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 0px 0px 4px 4px;
-  box-shadow: 0 0 3px 0 var(--box-shadow);
+  border-radius: 8px;
+  box-shadow: 0px 5px 10px rgba(0, 46, 57, 0.15);
   width: 220px;
 
   @include mobile {

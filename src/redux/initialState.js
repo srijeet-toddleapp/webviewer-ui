@@ -116,17 +116,10 @@ export default {
         },
         {
           type: 'toggleElementButton',
-          img: 'icon-header-sidebar-line',
+          img: 'Sidebar',
           element: 'leftPanel',
           dataElement: 'leftPanelButton',
           title: 'component.leftPanel',
-        },
-        {
-          type: 'toggleElementButton',
-          img: 'icon-header-page manipulation-line',
-          element: 'viewControlsOverlay',
-          dataElement: 'viewControlsButton',
-          title: 'component.viewControlsOverlay',
         },
         {
           type: 'divider',
@@ -163,7 +156,7 @@ export default {
           img: 'icon-header-chat-line',
           title: 'component.notesPanel',
           element: 'notesPanel',
-          onClick: (dispatch) => {
+          onClick: dispatch => {
             dispatch(actions.toggleElement('notesPanel'));
             // Trigger with a delay so we ensure the panel is open before we compute correct coordinates of annotation
             setTimeout(() => dispatch(actions.toggleElement('annotationNoteConnectorLine')), 400);
@@ -175,7 +168,7 @@ export default {
           dataElement: 'moreButton',
           title: 'action.more',
           img: 'icon-tools-more',
-          onClick: (dispatch) => {
+          onClick: dispatch => {
             dispatch(actions.setActiveHeaderGroup('small-mobile-more-buttons'));
             core.setToolMode(defaultTool);
           },
@@ -203,7 +196,7 @@ export default {
           dataElement: 'defaultHeaderButton',
           titile: 'action.close',
           img: 'ic_close_black_24px',
-          onClick: (dispatch) => {
+          onClick: dispatch => {
             dispatch(actions.setActiveHeaderGroup('default'));
             core.setToolMode(defaultTool);
           },
@@ -375,7 +368,7 @@ export default {
           title: 'action.redactPages',
           showColor: 'never',
           img: 'icon-tool-page-redact',
-          onClick: (dispatch) => dispatch(actions.openElement(DataElements.PAGE_REDACT_MODAL)),
+          onClick: dispatch => dispatch(actions.openElement(DataElements.PAGE_REDACT_MODAL)),
         },
         { type: 'divider' },
         {
@@ -1982,7 +1975,7 @@ export default {
     notesPanelCustomEmptyPanel: null,
     replyAttachmentPreviewEnabled: true,
     savedSignatureTabEnabled: false,
-    replyAttachmentHandler: null
+    replyAttachmentHandler: null,
   },
   search: {
     value: '',
@@ -2007,7 +2000,8 @@ export default {
         label: 'redactionPanel.search.phoneNumbers',
         icon: 'redact-icons-phone-number',
         type: redactionTypeMap['PHONE'],
-        regex: /\d?(\s?|-?|\+?|\.?)((\(\d{1,4}\))|(\d{1,3})|\s?)(\s?|-?|\.?)((\(\d{1,3}\))|(\d{1,3})|\s?)(\s?|-?|\.?)((\(\d{1,3}\))|(\d{1,3})|\s?)(\s?|-?|\.?)\d{3}(-|\.|\s)\d{4,5}/,
+        regex:
+          /\d?(\s?|-?|\+?|\.?)((\(\d{1,4}\))|(\d{1,3})|\s?)(\s?|-?|\.?)((\(\d{1,3}\))|(\d{1,3})|\s?)(\s?|-?|\.?)((\(\d{1,3}\))|(\d{1,3})|\s?)(\s?|-?|\.?)\d{3}(-|\.|\s)\d{4,5}/,
       },
       emails: {
         label: 'redactionPanel.search.emails',

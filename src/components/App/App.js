@@ -1,5 +1,5 @@
 import { hot } from 'react-hot-loader/root';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -86,8 +86,9 @@ const App = ({ removeEventHandlers }) => {
   const store = useStore();
   const dispatch = useDispatch();
   let timeoutReturn;
+  const [xfdfString, setXfdfString] = useState('');
 
-  const [isInDesktopOnlyMode, isMultiViewerMode] = useSelector((state) => [
+  const [isInDesktopOnlyMode, isMultiViewerMode] = useSelector(state => [
     selectors.isInDesktopOnlyMode(state),
     selectors.isMultiViewerMode(state),
   ]);
@@ -168,6 +169,37 @@ const App = ({ removeEventHandlers }) => {
     return removeEventHandlers;
   }, []);
 
+  //finds string like "date="20220313194644+05'30'"
+  const dateStringRegEx = / (date="D:\d{14})(\+\d{2}\'?\d{2}\'?)?\"/;
+  /*
+  util to compare two xdf strings, ignoring the date field
+  sometime two xdf might be different even if they have the same content,
+  based on time exported, so this util helps to compare two xdf strings
+  */
+  const isXdfEqual = (xdf1, xdf2) => {
+    try {
+      const modifiedXdf1 = xdf1.replace(dateStringRegEx, '');
+      const modifiedXdf2 = xdf2.replace(dateStringRegEx, '');
+      return _.isEqual(modifiedXdf1, modifiedXdf2);
+    } catch (e) {
+      console.error(e);
+    }
+    return _.isEqual(xdf1, xdf2);
+  };
+
+  const run = () => {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async resolve => {
+      const annotationManager = core.getAnnotationManager();
+      const xfdfString = await annotationManager.exportAnnotations({
+        links: false,
+        widgets: false,
+      });
+
+      resolve(xfdfString);
+    });
+  };
+
   useEffect(() => {
     const setTabletState = () => {
       // TODO: Use constants
@@ -182,44 +214,57 @@ const App = ({ removeEventHandlers }) => {
       }
     };
     tabletBreakpoint.addListener(onBreakpoint);
+
+    run().then(str => setXfdfString(str));
   }, []);
+
+  const checkAutosaveSave = () => {
+    run().then(str => {
+      const isEq = isXdfEqual(str, xfdfString);
+      if (!isEq) {
+        alert('Discard changes');
+      }
+    });
+  };
 
   return (
     <React.Fragment>
       <div className={classNames({ 'App': true, 'is-in-desktop-only-mode': isInDesktopOnlyMode })}>
         <Accessibility />
-
+        <button onClick={checkAutosaveSave}>Check if there are any changes made here</button>
         <Header />
         <ToolsHeader />
         <div className="content">
           <LeftPanel />
           {!isMultiViewerMode && <DocumentContainer />}
-          {!isIE11 && <MultiViewer/>}
-          <RightPanel dataElement="searchPanel" onResize={(width) => dispatch(actions.setSearchPanelWidth(width))}>
+          {!isIE11 && <MultiViewer />}
+          <RightPanel dataElement="searchPanel" onResize={width => dispatch(actions.setSearchPanelWidth(width))}>
             <SearchPanel />
           </RightPanel>
-          <RightPanel dataElement="notesPanel" onResize={(width) => dispatch(actions.setNotesPanelWidth(width))}>
+          <RightPanel dataElement="notesPanel" onResize={width => dispatch(actions.setNotesPanelWidth(width))}>
             <NotesPanel />
           </RightPanel>
-          <RightPanel dataElement="redactionPanel" onResize={(width) => dispatch(actions.setRedactionPanelWidth(width))}>
+          <RightPanel dataElement="redactionPanel" onResize={width => dispatch(actions.setRedactionPanelWidth(width))}>
             <RedactionPanel />
           </RightPanel>
           <RightPanel
             dataElement="wv3dPropertiesPanel"
-            onResize={(width) => dispatch(actions.setWv3dPropertiesPanelWidth(width))}
+            onResize={width => dispatch(actions.setWv3dPropertiesPanelWidth(width))}
           >
             <Wv3dPropertiesPanel />
           </RightPanel>
           <MultiTabEmptyPage />
           <RightPanel
             dataElement="textEditingPanel"
-            onResize={(width) => dispatch(actions.setTextEditingPanelWidth(width))}
+            onResize={width => dispatch(actions.setTextEditingPanelWidth(width))}
           >
             <TextEditingPanel />
           </RightPanel>
-          {isMultiViewerMode && <RightPanel dataElement="comparePanel" onResize={(width) => dispatch(actions.setComparePanelWidth(width))}>
-            <ComparePanel />
-          </RightPanel>}
+          {isMultiViewerMode && (
+            <RightPanel dataElement="comparePanel" onResize={width => dispatch(actions.setComparePanelWidth(width))}>
+              <ComparePanel />
+            </RightPanel>
+          )}
         </div>
         <ContentEditLinkModal />
         <ViewControlsOverlay />
