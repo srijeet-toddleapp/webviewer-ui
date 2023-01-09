@@ -190,13 +190,17 @@ const App = ({ removeEventHandlers }) => {
   const run = () => {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async resolve => {
-      const annotationManager = core.getAnnotationManager();
-      const xfdfString = await annotationManager.exportAnnotations({
-        links: false,
-        widgets: false,
-      });
+      try {
+        const annotationManager = core.getAnnotationManager();
+        const xfdfString = await annotationManager.exportAnnotations({
+          links: false,
+          widgets: false,
+        });
 
-      resolve(xfdfString);
+        resolve(xfdfString);
+      } catch (e) {
+        console.error(e);
+      }
     });
   };
 
@@ -220,7 +224,11 @@ const App = ({ removeEventHandlers }) => {
 
   const checkAutosaveSave = () => {
     run().then(str => {
+      // eslint-disable-next-line no-console
+      console.log(str);
       const isEq = isXdfEqual(str, xfdfString);
+      // eslint-disable-next-line no-console
+      console.log(isEq);
       if (!isEq) {
         alert('Discard changes');
       }
